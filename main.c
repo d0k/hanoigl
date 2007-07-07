@@ -4,7 +4,7 @@
 #include "objects.h"
 #include "hanoi.h"
 
-/*#define MANUALLY*/
+#define MANUALLY
 
 #define FPS 64 /* mehr sieht besser aus, braucht aber mehr leistung */
 

@@ -14,7 +14,7 @@ void drawDisk(GLUquadricObj **quadric, GLfloat outer, GLfloat inner) {
 			gluCylinder(*quadric, inner, inner, BREITE, INNERSLICES, LOOPS);
 		gluDisk(*quadric, inner, outer, SLICES, LOOPS);
 		gluQuadricOrientation(*quadric, GLU_OUTSIDE);
-		glTranslatef(0.0, 0.0, BREITE);		
+		glTranslatef(0.0, 0.0, BREITE);
 		gluDisk(*quadric, inner, outer, SLICES, LOOPS);
 		gluQuadricOrientation(*quadric, GLU_OUTSIDE);
 	glPopMatrix();
@@ -46,7 +46,7 @@ void drawAllPins(GLUquadricObj **quadric, GLfloat radius, GLfloat height, GLfloa
 }
 
 /* von lighthouse3d */
-void drawBitmapString(GLfloat x, GLfloat y, GLfloat z, void *font, char *string) {  
+void drawBitmapString(GLfloat x, GLfloat y, GLfloat z, void *font, char *string) {
 	char *c;
 	glRasterPos3f(x, y, z);
 	for (c = string; *c != '\0'; c++)

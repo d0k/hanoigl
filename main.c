@@ -45,7 +45,7 @@ void populatePin(void) {
 		cur = (disk *)malloc(sizeof(disk));
 		cur->color = (char)i%6;
 		cur->radius = radius;
-	
+
 		push(&pin[0], cur);
 
 		radius -= 0.1;
@@ -95,7 +95,7 @@ void hanoiinit(void) {
 	config.pinheight = disks*BREITE+0.2f;
 	maxdraws = (2 << (disks-1))-1;
 
-	populatePin();	
+	populatePin();
 
 #ifndef MANUALLY
 	/* aktionen berechnen & liste initialisieren */
@@ -134,7 +134,7 @@ void hanoicleanup(void) {
 
 	clearPins();
 
-#ifndef MANUALLY                                                               
+#ifndef MANUALLY
 	/* aktionen loeschen */
 	acur = actqueue.head;
 	do {
@@ -170,7 +170,7 @@ void setColor(int color) {
 			break;
 	}
 }
-		
+
 
 void Init(void)
 {
@@ -326,7 +326,7 @@ void Display(void)
 #endif /* MANUALLY */
 
 	gluLookAt(0.0, 0.9, 3.6+zoom, 0.0, offsetY, 0.0, 0.0, 1.0, 0.0); /* View-Transformation von gluLookAt berechnen lassen */
-	
+
 	glRotatef(rotY, 0.0, 1.0, 0.0);	 /* Rotation um die Y-Achse */
 	glRotatef(rotX, 1.0, 0.0, 0.0);	 /* Rotation um die X-Achse */
 
@@ -348,7 +348,7 @@ void Display(void)
 			} while(cur != NULL);
 		}
 		glPopMatrix();
-		glTranslatef(config.gap, 0.0, 0.0);			
+		glTranslatef(config.gap, 0.0, 0.0);
 	}
 	glPopMatrix();
 

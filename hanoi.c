@@ -16,7 +16,7 @@ void hanoi(actions *queue, int n, char pin1, char pin2, char pin3) {
 	action *curaction;
 	if(n > 0) {
 		hanoi(queue, n-1, pin1, pin3, pin2);
-		
+
 		/* haenge action an actions an*/
 		curaction = (action *)malloc(sizeof(action));
 		curaction->next = NULL;

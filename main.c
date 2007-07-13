@@ -4,7 +4,7 @@
 #include "objects.h"
 #include "hanoi.h"
 
-#define MANUALLY
+/*#define MANUALLY*/
 
 #define FPS 64 /* mehr sieht besser aus, braucht aber mehr leistung */
 
@@ -36,7 +36,7 @@ GLboolean needaction = 1, win;
 signed char fromstack = -1, tostack = -1;
 #endif /* MANUALLY */
 
-void populatePin(void) {
+static void populatePin(void) {
 	int i;
 	disk *cur;
 	GLfloat radius = 0.1f*disks;
@@ -54,7 +54,7 @@ void populatePin(void) {
 	draw = 0;
 }
 
-void clearPins(void) {
+static void clearPins(void) {
 	int i;
 	disk *cur, *tmp;
 
@@ -73,7 +73,7 @@ void clearPins(void) {
 	}
 }
 
-void hanoiinit(void) {
+static void hanoiinit(void) {
 	FILE *datei;
 	char buf[3]; /* zwei ziffern */
 	GLfloat radius;
@@ -112,7 +112,7 @@ void hanoiinit(void) {
 #endif /* MANUALLY */
 }
 
-void reset(void) {
+static void reset(void) {
 	clearPins();
 	populatePin();
 
@@ -148,7 +148,7 @@ void hanoicleanup(void) {
 
 }
 
-void setColor(int color) {
+static void setColor(const int color) {
 	switch(color) {
 		case 0:
 			glColor3f(1.0, 0.0, 0.0);
@@ -174,9 +174,9 @@ void setColor(int color) {
 
 void Init(void)
 {
-	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat mat_shininess[] = { 50.0 };
-	GLfloat light_position[] = { 0.0, 1.0, 1.0, 0.0 };
+	const GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	const GLfloat mat_shininess[] = { 50.0 };
+	const GLfloat light_position[] = { 0.0, 1.0, 1.0, 0.0 };
 
 	glShadeModel(GL_SMOOTH);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  /* Polygone gefuellt rendern */
@@ -212,7 +212,7 @@ void Reshape(int width, int height)
 }
 
 #ifdef MANUALLY
-void setkey(unsigned char key) {
+static void setkeynum(const unsigned char key) {
 	if(needaction) {
 		if(fromstack == -1 && tostack == -1) {
 			fromstack = key;
@@ -230,13 +230,13 @@ void Key(unsigned char key, int x, int y)
 	switch(key) {
 #ifdef MANUALLY
 		case '1':
-			setkey(0);
+			setkeynum(0);
 			break;
 		case '2':
-			setkey(1);
+			setkeynum(1);
 			break;
 		case '3':
-			setkey(2);
+			setkeynum(2);
 			break;
 #endif /* MANUALLY */
 		case 27:

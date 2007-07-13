@@ -5,7 +5,7 @@
 #define INNERSLICES 16
 #define LOOPS 1
 
-void drawDisk(GLUquadricObj **quadric, GLfloat outer, GLfloat inner) {
+void drawDisk(GLUquadricObj **quadric, const GLfloat outer, const GLfloat inner) {
 	glPushMatrix();
 		glRotatef(-90.0, 1.0, 0.0, 0.0);
 		gluCylinder(*quadric, outer, outer, BREITE, SLICES, LOOPS);
@@ -20,7 +20,7 @@ void drawDisk(GLUquadricObj **quadric, GLfloat outer, GLfloat inner) {
 	glPopMatrix();
 }
 
-void drawPin(GLUquadricObj **quadric, GLfloat radius, GLfloat height) {
+void drawPin(GLUquadricObj **quadric, const GLfloat radius, const GLfloat height) {
 	glPushMatrix();
 		glRotatef(-90.0, 1.0, 0.0, 0.0);
 		gluCylinder(*quadric, radius, radius, BREITE/2, SLICES, LOOPS);
@@ -35,7 +35,7 @@ void drawPin(GLUquadricObj **quadric, GLfloat radius, GLfloat height) {
 	glPopMatrix();
 }
 
-void drawAllPins(GLUquadricObj **quadric, GLfloat radius, GLfloat height, GLfloat gap) {
+void drawAllPins(GLUquadricObj **quadric, const GLfloat radius, const GLfloat height, const GLfloat gap) {
 	glPushMatrix();
 		drawPin(quadric, radius, height);
 		glTranslatef(-gap, 0.0, 0.0);
@@ -46,14 +46,14 @@ void drawAllPins(GLUquadricObj **quadric, GLfloat radius, GLfloat height, GLfloa
 }
 
 /* von lighthouse3d */
-void drawBitmapString(GLfloat x, GLfloat y, GLfloat z, void *font, char *string) {
+void drawBitmapString(const GLfloat x, const GLfloat y, const GLfloat z, void *font, char *string) {
 	char *c;
 	glRasterPos3f(x, y, z);
 	for (c = string; *c != '\0'; c++)
 		glutBitmapCharacter(font, *c);
 }
 
-void drawBitmapInt(GLfloat x, GLfloat y, GLfloat z, void *font, int number) {
+void drawBitmapInt(const GLfloat x, const GLfloat y, const GLfloat z, void *font, const int number) {
 	char string[17];
 
 	sprintf(string, "%d", number);

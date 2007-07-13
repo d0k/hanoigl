@@ -12,7 +12,7 @@ void hanoi(int n, int pin1, int pin2, int pin3) {
 }
 */
 
-void hanoi(actions *queue, int n, char pin1, char pin2, char pin3) {
+void hanoi(actions *queue, const int n, const char pin1, const char pin2, const char pin3) {
 	action *curaction;
 	if(n > 0) {
 		hanoi(queue, n-1, pin1, pin3, pin2);

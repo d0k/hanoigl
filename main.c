@@ -4,7 +4,7 @@
 #include "objects.h"
 #include "hanoi.h"
 
-/*#define MANUALLY*/
+#define MANUALLY 1
 
 #define FPS 64 /* mehr sieht besser aus, braucht aber mehr leistung */
 
@@ -20,7 +20,7 @@ GLboolean fullscreen;
 stack pin[3];
 float pinheight[3];
 struct config config;
-#ifndef MANUALLY
+#if MANUALLY == 0
 actions actqueue;
 #endif
 action *curaction;
@@ -31,7 +31,7 @@ char seconds[24] = "Zeit: 0s";
 
 int draw, maxdraws;
 
-#ifdef MANUALLY
+#if MANUALLY
 GLboolean needaction = 1, win;
 signed char fromstack = -1, tostack = -1;
 #endif /* MANUALLY */
@@ -97,7 +97,7 @@ static void hanoiinit(void) {
 
 	populatePin();
 
-#ifndef MANUALLY
+#if MANUALLY == 0
 	/* aktionen berechnen & liste initialisieren */
 	actqueue.head = NULL;
 	hanoi(&actqueue, disks, 0, 1, 2);
@@ -116,7 +116,7 @@ static void reset(void) {
 	clearPins();
 	populatePin();
 
-#ifndef MANUALLY
+#if MANUALLY == 0
 	/* aktionen zuruecksetzen */
 	curaction = actqueue.head;
 	curdisk = pop(&pin[(int)curaction->fromstack]);
@@ -128,13 +128,13 @@ static void reset(void) {
 }
 
 void hanoicleanup(void) {
-#ifndef MANUALLY
+#if MANUALLY == 0
 	action *acur, *atmp;
 #endif /* MANUALLY */
 
 	clearPins();
 
-#ifndef MANUALLY
+#if MANUALLY == 0
 	/* aktionen loeschen */
 	acur = actqueue.head;
 	do {
@@ -211,7 +211,7 @@ void Reshape(int width, int height)
 	glMatrixMode(GL_MODELVIEW);
 }
 
-#ifdef MANUALLY
+#if MANUALLY
 static void setkeynum(const unsigned char key) {
 	if(needaction) {
 		if(fromstack == -1 && tostack == -1) {
@@ -228,7 +228,7 @@ static void setkeynum(const unsigned char key) {
 void Key(unsigned char key, int x, int y)
 {
 	switch(key) {
-#ifdef MANUALLY
+#if MANUALLY
 		case '1':
 			setkeynum(0);
 			break;
@@ -320,7 +320,7 @@ void Display(void)
 	drawBitmapString(25.0, 32.0, -60.0, GLUT_BITMAP_9_BY_15, seconds);
 	drawBitmapInt(25.0, 30.0, -60.0, GLUT_BITMAP_9_BY_15, draw);
 	drawBitmapInt(28.0, 30.0, -60.0, GLUT_BITMAP_9_BY_15, maxdraws);
-#ifdef MANUALLY
+#if MANUALLY
    if(win)
    	drawBitmapString(-5.0, 10.0, -60.0, GLUT_BITMAP_TIMES_ROMAN_24, "gewonnen!");
 #endif /* MANUALLY */
@@ -399,19 +399,19 @@ void Display(void)
 }
 
 void moveDisk(int param) {
-#ifdef MANUALLY
+#if MANUALLY
 	GLfloat radiusfrom, radiusto;
 #endif /* MANUALLY */
 	if(param == 1)
 		reset();
-#ifdef MANUALLY
+#if MANUALLY
       win = 0;
 #else /* MANUALLY */
 	if(curaction != NULL) {
 #endif /* MANUALLY */
 	if(pos == 0.0 || pos >= 3.0-speed) { /* 0--1 -> hochschieben, 1--2 "fliegen", 2--3 runterschieben */
 			pos = 0.0;
-#ifndef MANUALLY
+#if MANUALLY == 0
 			draw++;
 			push(&pin[(int)curaction->tostack], curdisk);
 			curaction = curaction->next;
@@ -449,7 +449,7 @@ void moveDisk(int param) {
 #endif /* MANUALLY */
 		}
 
-#ifdef MANUALLY
+#if MANUALLY
 		if(!needaction)
 #endif /* MANUALLY */
 		pos += speed;
@@ -457,11 +457,11 @@ void moveDisk(int param) {
 		if(pos > 3.0-FSEM)
 			pos = 3.0-FSEM;
 
-      #ifdef MANUALLY
+      #if MANUALLY
       if(!win)
       #endif /* MANUALLY */
 		glutTimerFunc((unsigned)FEM, moveDisk, 0);
-#ifndef MANUALLY
+#if MANUALLY == 0
 	} else {
 		curdisk = NULL;
 		glutTimerFunc(5000, moveDisk, 1);
@@ -472,7 +472,7 @@ void moveDisk(int param) {
 
 void timer(int param) {
 	if(curaction != NULL) {
-#ifdef MANUALLY
+#if MANUALLY
 		if(!win)
 #endif /* MANUALLY */
 		sprintf(seconds, "Zeit: %ds", ++duration);

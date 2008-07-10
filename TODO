@@ -1,0 +1,12 @@
+Priority: high
+* let the choose if he wants to play himself (not at compile time)
+* display info about the controls
+* fix rendering errors on high speeds
+* split display() to make it maintable
+
+Priority: low
+* fix little display glitches
+* drop GLUT, don't use fixed fps
+* antialiasing
+* maybe use display lists to speed up rendering (not sure if it helps in this case)
+* automatic camera movement

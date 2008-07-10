@@ -45,7 +45,7 @@ void drawAllPins(GLUquadricObj **quadric, const GLfloat radius, const GLfloat he
 	glPopMatrix();
 }
 
-/* von lighthouse3d */
+/* from lighthouse3d */
 void drawBitmapString(const GLfloat x, const GLfloat y, const GLfloat z, void *font, char *string) {
 	char *c;
 	glRasterPos3f(x, y, z);

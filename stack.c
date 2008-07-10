@@ -1,7 +1,7 @@
 #include "hanoigl.h"
 #include "stack.h"
 
-/* item auf stapel legen */
+/** push item to pin */
 void push(stack *pin, disk *item) {
 	item->next = NULL;
 	if(pin->bottom == NULL) {
@@ -15,7 +15,7 @@ void push(stack *pin, disk *item) {
 	}
 }
 
-/* item von stapel herunternehmen */
+/** pop item from pin */
 disk *pop(stack *pin) {
 	disk *tmp;
 	if(pin->top != NULL) {

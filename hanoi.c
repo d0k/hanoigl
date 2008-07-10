@@ -17,7 +17,7 @@ void hanoi(actions *queue, const int n, const char pin1, const char pin2, const 
 	if(n > 0) {
 		hanoi(queue, n-1, pin1, pin3, pin2);
 
-		/* haenge action an actions an*/
+		/* push action into action queue */
 		curaction = (action *)malloc(sizeof(action));
 		curaction->next = NULL;
 		curaction->fromstack = pin1;

@@ -4,12 +4,12 @@
 #include "objects.h"
 #include "hanoi.h"
 
-#define MANUALLY 1
+#define MANUALLY 0
 
-#define FPS 64 /* mehr sieht besser aus, braucht aber mehr leistung */
+#define FPS 64 /* more looks nicer, uses more cpu power */
 
 #define FEM 1000.0/FPS
-#define FSEM 0.001f /* geschwindigkeit (groesser ist schneller) */
+#define FSEM 0.001f /* speed (bigger is faster)*/
 
 int disks;
 GLfloat rotX, rotY, zoom, offsetY = 1.5, speed;
@@ -27,7 +27,7 @@ action *curaction;
 disk *curdisk;
 
 int duration;
-char seconds[24] = "Zeit: 0s";
+char seconds[24] = "Time: 0s";
 
 int draw, maxdraws;
 
@@ -75,7 +75,7 @@ static void clearPins(void) {
 
 static void hanoiinit(void) {
 	FILE *datei;
-	char buf[3]; /* zwei ziffern */
+	char buf[3]; /* two digits */
 	GLfloat radius;
 
 	if((datei = fopen("disks.txt", "r")) != NULL) {
@@ -98,7 +98,7 @@ static void hanoiinit(void) {
 	populatePin();
 
 #if MANUALLY == 0
-	/* aktionen berechnen & liste initialisieren */
+	/* calculate actions; initialize action list */
 	actqueue.head = NULL;
 	hanoi(&actqueue, disks, 0, 1, 2);
 
@@ -117,7 +117,7 @@ static void reset(void) {
 	populatePin();
 
 #if MANUALLY == 0
-	/* aktionen zuruecksetzen */
+	/* reset actions */
 	curaction = actqueue.head;
 	curdisk = pop(&pin[(int)curaction->fromstack]);
 	pos = 0.001;
@@ -135,7 +135,7 @@ void hanoicleanup(void) {
 	clearPins();
 
 #if MANUALLY == 0
-	/* aktionen loeschen */
+	/* delete actions */
 	acur = actqueue.head;
 	do {
 		atmp = acur->next;
@@ -179,17 +179,17 @@ void Init(void)
 	const GLfloat light_position[] = { 0.0, 1.0, 1.0, 0.0 };
 
 	glShadeModel(GL_SMOOTH);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  /* Polygone gefuellt rendern */
-	glClearColor(1.0, 1.0, 1.0, 1.0);   /* Color zum Loeschen des Framebuffers setzen */
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* Gewichtsfaktoren f. Blending einstellen */
-	glCullFace(GL_BACK);		/* die Rueckseite nicht darstellen */
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  /* draw polygons filled */
+	glClearColor(1.0, 1.0, 1.0, 1.0);   /* set screen clear color */
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* blending settings */
+	glCullFace(GL_BACK);		/* don't draw backsides */
 
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE); /* glColor erhalten */
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE); /* glColor should be used although lightning is used */
 
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE); /* schoenere Beleuchtung */
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE); /* nicer lightning :) */
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
@@ -200,7 +200,7 @@ void Init(void)
 	gluQuadricNormals(quadric, GLU_SMOOTH);
 }
 
-/* Aktionen bei Aenderung der Groesse des Ausgabefensters */
+/** Is called if the window size is changed */
 void Reshape(int width, int height)
 {
 	glViewport(0, 0, (GLint) width, (GLint) height);
@@ -224,7 +224,7 @@ static void setkeynum(const unsigned char key) {
 }
 #endif /* MANUALLY */
 
-/* Reaktionen auf Tastaturereignisse */
+/** react to key presses */
 void Key(unsigned char key, int x, int y)
 {
 	switch(key) {
@@ -312,9 +312,9 @@ void Display(void)
 	int i;
 	GLfloat movY;
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); /* Altes Bild loeschen */
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); /* clear scren */
 
-	glLoadIdentity(); /* Modelview-Matrix initialisieren */
+	glLoadIdentity(); /* reinitialize model view matrix */
 
 	glColor3f(0.0, 0.0, 0.0);
 	drawBitmapString(25.0, 32.0, -60.0, GLUT_BITMAP_9_BY_15, seconds);
@@ -322,20 +322,20 @@ void Display(void)
 	drawBitmapInt(28.0, 30.0, -60.0, GLUT_BITMAP_9_BY_15, maxdraws);
 #if MANUALLY
    if(win)
-   	drawBitmapString(-5.0, 10.0, -60.0, GLUT_BITMAP_TIMES_ROMAN_24, "gewonnen!");
+   	drawBitmapString(-5.0, 10.0, -60.0, GLUT_BITMAP_TIMES_ROMAN_24, "won!");
 #endif /* MANUALLY */
 
-	gluLookAt(0.0, 0.9, 3.6+zoom, 0.0, offsetY, 0.0, 0.0, 1.0, 0.0); /* View-Transformation von gluLookAt berechnen lassen */
+	gluLookAt(0.0, 0.9, 3.6+zoom, 0.0, offsetY, 0.0, 0.0, 1.0, 0.0); /* calculate view point */
 
-	glRotatef(rotY, 0.0, 1.0, 0.0);	 /* Rotation um die Y-Achse */
-	glRotatef(rotX, 1.0, 0.0, 0.0);	 /* Rotation um die X-Achse */
+	glRotatef(rotY, 0.0, 1.0, 0.0);	 /* rotate Y axis */
+	glRotatef(rotX, 1.0, 0.0, 0.0);	 /* rotate X axis */
 
 	glColor3f(0.0, 0.0, 0.5);
-	drawAllPins(&quadric, config.pinradius, config.pinheight, config.gap); /* staender zeichnen */
+	drawAllPins(&quadric, config.pinradius, config.pinheight, config.gap); /* draw pins */
 
 	glTranslatef(-config.gap, BREITE/2, 0.0);
 	glPushMatrix();
-	for(i = 0; i < 3; i++) { /* staender fuellen */
+	for(i = 0; i < 3; i++) { /* fill pins with disks */
 		glPushMatrix();
 		pinheight[i] = 0;
 		if((cur = pin[i].bottom) != NULL) {
@@ -358,7 +358,7 @@ void Display(void)
 			glTranslatef(config.gap*curaction->fromstack, pinheight[(int)curaction->fromstack]+movY, 0.0);
 		} else {
 			if(pos < 2.0 && curaction->fromstack != curaction->tostack) {
-				if(curaction->fromstack != 1 && curaction->tostack != 1) { /* 2er-sprung */
+				if(curaction->fromstack != 1 && curaction->tostack != 1) { /* jump 2 pins */
 					glTranslatef(config.gap, config.pinheight+0.05f, 0.0);
 					if(curaction->fromstack == 0)
 						glRotatef(-(pos-2.0f)*180-90, 0.0, 0.0, 1.0);
@@ -386,7 +386,7 @@ void Display(void)
 					glTranslatef(0.0, config.gap/2, 0.0);
 				}
 				glRotatef(-90, 0.0, 0.0, 1.0);
-			} else if(pos >= 2.0) { /* runterschieben */
+			} else if(pos >= 2.0) { /* drop disk down */
 				movY = config.pinheight-(pos-2.0f+speed)*(config.pinheight-pinheight[(int)curaction->tostack]);
 				glTranslatef(config.gap*curaction->tostack, movY, 0.0);
 			}
@@ -395,7 +395,7 @@ void Display(void)
 		drawDisk(&quadric, curdisk->radius, STANGENBREITE);
 	}
 
-	glutSwapBuffers(); /* anzeigen (double-buffering) */
+	glutSwapBuffers(); /* swap buffers (double buffering) */
 }
 
 void moveDisk(int param) {
@@ -409,7 +409,7 @@ void moveDisk(int param) {
 #else /* MANUALLY */
 	if(curaction != NULL) {
 #endif /* MANUALLY */
-	if(pos == 0.0 || pos >= 3.0-speed) { /* 0--1 -> hochschieben, 1--2 "fliegen", 2--3 runterschieben */
+	if(pos == 0.0 || pos >= 3.0-speed) { /* 0--1 -> disk goes upwards, 1--2 "disk in air", 2--3 disk goes downwards*/
 			pos = 0.0;
 #if MANUALLY == 0
 			draw++;
@@ -418,7 +418,7 @@ void moveDisk(int param) {
 			if(curaction != NULL)
 				curdisk = pop(&pin[(int)curaction->fromstack]);
 #else /* MANUALLY */
-			if(pin[0].top == NULL && pin[1].top == NULL && curdisk == NULL) { /* gewonnen */
+			if(pin[0].top == NULL && pin[1].top == NULL && curdisk == NULL) { /* player has won */
          	win = needaction = 1;
             fromstack = tostack = -1;
             /*push(&pin[(int)curaction->tostack], curdisk);
@@ -475,7 +475,7 @@ void timer(int param) {
 #if MANUALLY
 		if(!win)
 #endif /* MANUALLY */
-		sprintf(seconds, "Zeit: %ds", ++duration);
+		sprintf(seconds, "Time: %ds", ++duration);
 	}
 	glutTimerFunc(1000, timer, 0);
 }
@@ -484,7 +484,7 @@ void timer(int param) {
 int main(int argc, char *argv[])
 {
 #ifdef __BORLANDC__
-	_control87(MCW_EM,MCW_EM); /* Floatingpoint-Exceptions in Borland abschalten (GLUT) */
+	_control87(MCW_EM,MCW_EM); /* disable Floatingpoint Exceptions (for vintage borland compilers) (GLUT) */
 #endif /* __BORLANDC__ */
 	hanoiinit();
 	atexit(hanoicleanup);
@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
 	glutInitWindowSize(800, 600);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE);
 
-	if(glutCreateWindow("Tuerme von Hanoi") == GL_FALSE)
+	if(glutCreateWindow("Towers of Hanoi") == GL_FALSE)
 		exit(EXIT_FAILURE);
 
 	Init();

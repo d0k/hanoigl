@@ -6,10 +6,10 @@
 
 #define MANUALLY 0
 
-#define FPS 64 /* more looks nicer, uses more cpu power */
+#define FPS 64			/* more looks nicer, uses more cpu power */
 
 #define FEM 1000.0/FPS
-#define FSEM 0.001f /* speed (bigger is faster)*/
+#define FSEM 0.001f		/* speed (bigger is faster) */
 
 int disks;
 GLfloat rotX, rotY, zoom, offsetY = 1.5, speed;
@@ -36,14 +36,15 @@ GLboolean needaction = 1, win;
 signed char fromstack = -1, tostack = -1;
 #endif /* MANUALLY */
 
-static void populatePin(void) {
+static void populatePin(void)
+{
 	int i;
 	disk *cur;
-	GLfloat radius = 0.1f*disks;
+	GLfloat radius = 0.1f * disks;
 
-	for(i = 0;i < disks;i++) {
-		cur = (disk *)malloc(sizeof(disk));
-		cur->color = (char)i%6;
+	for (i = 0; i < disks; i++) {
+		cur = (disk *) malloc(sizeof(disk));
+		cur->color = (char)i % 6;
 		cur->radius = radius;
 
 		push(&pin[0], cur);
@@ -54,16 +55,17 @@ static void populatePin(void) {
 	draw = 0;
 }
 
-static void clearPins(void) {
+static void clearPins(void)
+{
 	int i;
 	disk *cur, *tmp;
 
 	free(curdisk);
 	curdisk = NULL;
 
-	for(i = 0;i < 3;i++) {
+	for (i = 0; i < 3; i++) {
 		cur = pin[i].top;
-		while(cur != NULL) {
+		while (cur != NULL) {
 			tmp = cur->prev;
 			free(cur);
 			cur = tmp;
@@ -73,27 +75,28 @@ static void clearPins(void) {
 	}
 }
 
-static void hanoiinit(void) {
+static void hanoiinit(void)
+{
 	FILE *datei;
-	char buf[3]; /* two digits */
+	char buf[3];		/* two digits */
 	GLfloat radius;
 
-	if((datei = fopen("disks.txt", "r")) != NULL) {
+	if ((datei = fopen("disks.txt", "r")) != NULL) {
 		fgets(buf, 3, datei);
 		disks = atoi(buf);
 		fclose(datei);
 	}
 
-	if(disks <= 0 || disks > 20)
+	if (disks <= 0 || disks > 20)
 		disks = 3;
 
-	speed = FSEM*FEM;
+	speed = FSEM * FEM;
 
-	radius = 0.1f*disks;
-	config.pinradius = radius+0.1f;
-	config.gap = radius*2+0.5f;
-	config.pinheight = disks*BREITE+0.2f;
-	maxdraws = (2 << (disks-1))-1;
+	radius = 0.1f * disks;
+	config.pinradius = radius + 0.1f;
+	config.gap = radius * 2 + 0.5f;
+	config.pinheight = disks * BREITE + 0.2f;
+	maxdraws = (2 << (disks - 1)) - 1;
 
 	populatePin();
 
@@ -106,13 +109,14 @@ static void hanoiinit(void) {
 	curdisk = pop(&pin[(int)curaction->fromstack]);
 	pos = 0.001;
 #else /* MANUALLY */
-	curaction = (action *)malloc(sizeof(action));
+	curaction = (action *) malloc(sizeof(action));
 	curaction->fromstack = -1;
 	curaction->tostack = -1;
 #endif /* MANUALLY */
 }
 
-static void reset(void) {
+static void reset(void)
+{
 	clearPins();
 	populatePin();
 
@@ -127,7 +131,8 @@ static void reset(void) {
 #endif /* MANUALLY */
 }
 
-void hanoicleanup(void) {
+void hanoicleanup(void)
+{
 #if MANUALLY == 0
 	action *acur, *atmp;
 #endif /* MANUALLY */
@@ -141,36 +146,36 @@ void hanoicleanup(void) {
 		atmp = acur->next;
 		free(acur);
 		acur = atmp;
-	} while(acur != NULL);
+	} while (acur != NULL);
 #endif /* MANUALLY */
 
 	gluDeleteQuadric(quadric);
 
 }
 
-static void setColor(const int color) {
-	switch(color) {
-		case 0:
-			glColor3f(1.0, 0.0, 0.0);
-			break;
-		case 1:
-			glColor3f(0.0, 1.0, 0.0);
-			break;
-		case 2:
-			glColor3f(1.0, 1.0, 0.0);
-			break;
-		case 3:
-			glColor3f(0.0, 1.0, 1.0);
-			break;
-		case 4:
-			glColor3f(1.0, 0.0, 1.0);
-			break;
-		case 5:
-			glColor3f(0.0, 0.0, 0.0);
-			break;
+static void setColor(const int color)
+{
+	switch (color) {
+	case 0:
+		glColor3f(1.0, 0.0, 0.0);
+		break;
+	case 1:
+		glColor3f(0.0, 1.0, 0.0);
+		break;
+	case 2:
+		glColor3f(1.0, 1.0, 0.0);
+		break;
+	case 3:
+		glColor3f(0.0, 1.0, 1.0);
+		break;
+	case 4:
+		glColor3f(1.0, 0.0, 1.0);
+		break;
+	case 5:
+		glColor3f(0.0, 0.0, 0.0);
+		break;
 	}
 }
-
 
 void Init(void)
 {
@@ -179,17 +184,17 @@ void Init(void)
 	const GLfloat light_position[] = { 0.0, 1.0, 1.0, 0.0 };
 
 	glShadeModel(GL_SMOOTH);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  /* draw polygons filled */
-	glClearColor(1.0, 1.0, 1.0, 1.0);   /* set screen clear color */
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* blending settings */
-	glCullFace(GL_BACK);		/* don't draw backsides */
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	/* draw polygons filled */
+	glClearColor(1.0, 1.0, 1.0, 1.0);	/* set screen clear color */
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	/* blending settings */
+	glCullFace(GL_BACK);	/* don't draw backsides */
 
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE); /* glColor should be used although lightning is used */
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);	/* glColor should be used although lightning is used */
 
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE); /* nicer lightning :) */
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);	/* nicer lightning :) */
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
@@ -201,9 +206,12 @@ void Init(void)
 }
 
 /** Is called if the window size is changed */
-void Reshape(int width, int height)
+void GLFWCALL reshape(void)
 {
-	glViewport(0, 0, (GLint) width, (GLint) height);
+	int width, height;
+	glfwGetWindowSize(&width, &height);
+	height = height < 1 ? 1 : height;
+	glViewport(0, 0, width, height);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -212,9 +220,10 @@ void Reshape(int width, int height)
 }
 
 #if MANUALLY
-static void setkeynum(const unsigned char key) {
-	if(needaction) {
-		if(fromstack == -1 && tostack == -1) {
+static void setkeynum(const unsigned char key)
+{
+	if (needaction) {
+		if (fromstack == -1 && tostack == -1) {
 			fromstack = key;
 		} else {
 			tostack = key;
@@ -225,9 +234,10 @@ static void setkeynum(const unsigned char key) {
 #endif /* MANUALLY */
 
 /** react to key presses */
-void Key(unsigned char key, int x, int y)
+void GLFWCALL key(int key, int action)
 {
-	switch(key) {
+	if (action == GLFW_PRESS) {
+		switch (key) {
 #if MANUALLY
 		case '1':
 			setkeynum(0);
@@ -248,7 +258,7 @@ void Key(unsigned char key, int x, int y)
 			rotY = 0.0;
 			zoom = 0.0;
 			offsetY = 1.5;
-			speed = FSEM*FEM;
+			speed = FSEM * FEM;
 			break;
 		case '+':
 			zoom -= 0.1;
@@ -260,50 +270,46 @@ void Key(unsigned char key, int x, int y)
 			reset();
 			break;
 		case 'f':
-			if (fullscreen == 0) {
-				glutFullScreen();
-				fullscreen = 1;
-			} else {
-				glutReshapeWindow(800, 600);
-				glutPositionWindow(50, 50);
-				fullscreen = 0;
-			}
+			/*if (fullscreen == 0) {
+			   glutFullScreen();
+			   fullscreen = 1;
+			   } else {
+			   glutReshapeWindow(800, 600);
+			   glutPositionWindow(50, 50);
+			   fullscreen = 0;
+			   } */
 			break;
 		case 's':
 			speed += 0.005;
 			break;
 		case 'x':
 			speed -= 0.005;
-			if(speed < 0.0)
+			if (speed < 0.0)
 				speed = 0.0;
 			break;
-	}
-	glutPostRedisplay();
-}
 
-void SpecialKey(int key, int x, int y)
-{
-	switch(key) {
-	case GLUT_KEY_UP:
-		rotX -= 5;
-		break;
-	case GLUT_KEY_DOWN:
-		rotX += 5;
-		break;
-	case GLUT_KEY_LEFT:
-		rotY -= 5;
-		break;
-	case GLUT_KEY_RIGHT:
-		rotY += 5;
-		break;
-	case GLUT_KEY_PAGE_UP:
-		offsetY -= 0.1;
-		break;
-	case GLUT_KEY_PAGE_DOWN:
-		offsetY += 0.1;
-		break;
+		case GLFW_KEY_UP:
+			rotX -= 5;
+			break;
+		case GLFW_KEY_DOWN:
+			rotX += 5;
+			break;
+		case GLFW_KEY_LEFT:
+			rotY -= 5;
+			break;
+		case GLFW_KEY_RIGHT:
+			rotY += 5;
+			break;
+			/*case GLFW_KEY_PAGE_UP:
+			   offsetY -= 0.1;
+			   break;
+			   case GLFW_KEY_PAGE_DOWN:
+			   offsetY += 0.1;
+			   break;
+			   } */
+			//glutPostRedisplay();
+		}
 	}
-	glutPostRedisplay();
 }
 
 void Display(void)
@@ -312,201 +318,202 @@ void Display(void)
 	int i;
 	GLfloat movY;
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); /* clear scren */
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	/* clear scren */
 
-	glLoadIdentity(); /* reinitialize model view matrix */
+	glLoadIdentity();	/* reinitialize model view matrix */
 
 	glColor3f(0.0, 0.0, 0.0);
-	drawBitmapString(25.0, 32.0, -60.0, GLUT_BITMAP_9_BY_15, seconds);
-	drawBitmapInt(25.0, 30.0, -60.0, GLUT_BITMAP_9_BY_15, draw);
-	drawBitmapInt(28.0, 30.0, -60.0, GLUT_BITMAP_9_BY_15, maxdraws);
+	//drawBitmapString(25.0, 32.0, -60.0, GLUT_BITMAP_9_BY_15, seconds);
+	//drawBitmapInt(25.0, 30.0, -60.0, GLUT_BITMAP_9_BY_15, draw);
+	//drawBitmapInt(28.0, 30.0, -60.0, GLUT_BITMAP_9_BY_15, maxdraws);
 #if MANUALLY
-   if(win)
-   	drawBitmapString(-5.0, 10.0, -60.0, GLUT_BITMAP_TIMES_ROMAN_24, "won!");
+	//if (win)
+	//drawBitmapString(-5.0, 10.0, -60.0, GLUT_BITMAP_TIMES_ROMAN_24, "won!");
 #endif /* MANUALLY */
 
-	gluLookAt(0.0, 0.9, 3.6+zoom, 0.0, offsetY, 0.0, 0.0, 1.0, 0.0); /* calculate view point */
+	gluLookAt(0.0, 0.9, 3.6 + zoom, 0.0, offsetY, 0.0, 0.0, 1.0, 0.0);	/* calculate view point */
 
-	glRotatef(rotY, 0.0, 1.0, 0.0);	 /* rotate Y axis */
-	glRotatef(rotX, 1.0, 0.0, 0.0);	 /* rotate X axis */
+	glRotatef(rotY, 0.0, 1.0, 0.0);	/* rotate Y axis */
+	glRotatef(rotX, 1.0, 0.0, 0.0);	/* rotate X axis */
 
 	glColor3f(0.0, 0.0, 0.5);
-	drawAllPins(&quadric, config.pinradius, config.pinheight, config.gap); /* draw pins */
+	drawAllPins(&quadric, config.pinradius, config.pinheight, config.gap);	/* draw pins */
 
-	glTranslatef(-config.gap, BREITE/2, 0.0);
+	glTranslatef(-config.gap, BREITE / 2, 0.0);
 	glPushMatrix();
-	for(i = 0; i < 3; i++) { /* fill pins with disks */
+	for (i = 0; i < 3; i++) {	/* fill pins with disks */
 		glPushMatrix();
 		pinheight[i] = 0;
-		if((cur = pin[i].bottom) != NULL) {
+		if ((cur = pin[i].bottom) != NULL) {
 			do {
 				setColor(cur->color);
 				drawDisk(&quadric, cur->radius, STANGENBREITE);
 				glTranslatef(0.0, BREITE, 0.0);
 				pinheight[i] += BREITE;
 				cur = cur->next;
-			} while(cur != NULL);
+			} while (cur != NULL);
 		}
 		glPopMatrix();
 		glTranslatef(config.gap, 0.0, 0.0);
 	}
 	glPopMatrix();
 
-	if(curaction != NULL && curaction->fromstack != -1 && curdisk != NULL) {
-		if(pos <= 1.0) { /* hochschieben */
-			movY = pos*(config.pinheight-pinheight[(int)curaction->fromstack]);
-			glTranslatef(config.gap*curaction->fromstack, pinheight[(int)curaction->fromstack]+movY, 0.0);
+	if (curaction != NULL && curaction->fromstack != -1 && curdisk != NULL) {
+		if (pos <= 1.0) {	/* hochschieben */
+			movY = pos * (config.pinheight - pinheight[(int)curaction->fromstack]);
+			glTranslatef(config.gap * curaction->fromstack, pinheight[(int)curaction->fromstack] + movY, 0.0);
 		} else {
-			if(pos < 2.0 && curaction->fromstack != curaction->tostack) {
-				if(curaction->fromstack != 1 && curaction->tostack != 1) { /* jump 2 pins */
-					glTranslatef(config.gap, config.pinheight+0.05f, 0.0);
-					if(curaction->fromstack == 0)
-						glRotatef(-(pos-2.0f)*180-90, 0.0, 0.0, 1.0);
+			if (pos < 2.0 && curaction->fromstack != curaction->tostack) {
+				if (curaction->fromstack != 1 && curaction->tostack != 1) {	/* jump 2 pins */
+					glTranslatef(config.gap, config.pinheight + 0.05f, 0.0);
+					if (curaction->fromstack == 0)
+						glRotatef(-(pos - 2.0f) * 180 - 90, 0.0, 0.0, 1.0);
 					else
-						glRotatef((pos-2.0f)*180+90, 0.0, 0.0, 1.0);
+						glRotatef((pos - 2.0f) * 180 + 90, 0.0, 0.0, 1.0);
 					glTranslatef(0.0, config.gap, 0.0);
-				} else { /* 1er-sprung */
-					if(curaction->fromstack == 0 && curaction->tostack == 1) {
-						glTranslatef(config.gap/2, config.pinheight+0.05f, 0.0);
-						glRotatef(-(pos-2.0f)*180-90, 0.0, 0.0, 1.0);
+				} else {	/* 1er-sprung */
+					if (curaction->fromstack == 0 && curaction->tostack == 1) {
+						glTranslatef(config.gap / 2, config.pinheight + 0.05f, 0.0);
+						glRotatef(-(pos - 2.0f) * 180 - 90, 0.0, 0.0, 1.0);
 					} else {
-						if(curaction->fromstack == 2 && curaction->tostack == 1) {
-							glTranslatef(config.gap/2*3, config.pinheight+0.05f, 0.0);
-							glRotatef((pos-2.0f)*180+90, 0.0, 0.0, 1.0);
+						if (curaction->fromstack == 2 && curaction->tostack == 1) {
+							glTranslatef(config.gap / 2 * 3, config.pinheight + 0.05f, 0.0);
+							glRotatef((pos - 2.0f) * 180 + 90, 0.0, 0.0, 1.0);
 						} else {
-							if(curaction->fromstack == 1 && curaction->tostack == 2) {
-								glTranslatef(config.gap/2*3, config.pinheight+0.05f, 0.0);
-								glRotatef(-(pos-2.0f)*180-90, 0.0, 0.0, 1.0);
+							if (curaction->fromstack == 1 && curaction->tostack == 2) {
+								glTranslatef(config.gap / 2 * 3, config.pinheight + 0.05f, 0.0);
+								glRotatef(-(pos - 2.0f) * 180 - 90, 0.0, 0.0, 1.0);
 							} else {
-									glTranslatef(config.gap/2, config.pinheight+0.05f, 0.0);
-									glRotatef((pos-2.0f)*180+90, 0.0, 0.0, 1.0);
+								glTranslatef(config.gap / 2, config.pinheight + 0.05f, 0.0);
+								glRotatef((pos - 2.0f) * 180 + 90, 0.0, 0.0, 1.0);
 							}
 						}
-						}
-					glTranslatef(0.0, config.gap/2, 0.0);
+					}
+					glTranslatef(0.0, config.gap / 2, 0.0);
 				}
 				glRotatef(-90, 0.0, 0.0, 1.0);
-			} else if(pos >= 2.0) { /* drop disk down */
-				movY = config.pinheight-(pos-2.0f+speed)*(config.pinheight-pinheight[(int)curaction->tostack]);
-				glTranslatef(config.gap*curaction->tostack, movY, 0.0);
+			} else if (pos >= 2.0) {	/* drop disk down */
+				movY = config.pinheight - (pos - 2.0f + speed) * (config.pinheight - pinheight[(int)curaction->tostack]);
+				glTranslatef(config.gap * curaction->tostack, movY, 0.0);
 			}
 		}
 		setColor(curdisk->color);
 		drawDisk(&quadric, curdisk->radius, STANGENBREITE);
 	}
 
-	glutSwapBuffers(); /* swap buffers (double buffering) */
+	glfwSwapBuffers();	/* swap buffers (double buffering) */
 }
 
-void moveDisk(int param) {
+void moveDisk(int param)
+{
 #if MANUALLY
 	GLfloat radiusfrom, radiusto;
 #endif /* MANUALLY */
-	if(param == 1)
+	if (param == 1)
 		reset();
 #if MANUALLY
-      win = 0;
+	win = 0;
 #else /* MANUALLY */
-	if(curaction != NULL) {
+	if (curaction != NULL) {
 #endif /* MANUALLY */
-	if(pos == 0.0 || pos >= 3.0-speed) { /* 0--1 -> disk goes upwards, 1--2 "disk in air", 2--3 disk goes downwards*/
+		if (pos == 0.0 || pos >= 3.0 - speed) {	/* 0--1 -> disk goes upwards, 1--2 "disk in air", 2--3 disk goes downwards */
 			pos = 0.0;
 #if MANUALLY == 0
 			draw++;
 			push(&pin[(int)curaction->tostack], curdisk);
 			curaction = curaction->next;
-			if(curaction != NULL)
+			if (curaction != NULL)
 				curdisk = pop(&pin[(int)curaction->fromstack]);
 #else /* MANUALLY */
-			if(pin[0].top == NULL && pin[1].top == NULL && curdisk == NULL) { /* player has won */
-         	win = needaction = 1;
-            fromstack = tostack = -1;
-            /*push(&pin[(int)curaction->tostack], curdisk);
-				draw++;
-				curdisk = NULL;*/
-            glutTimerFunc(5000, moveDisk, 1);
-         } else {
-				if(!needaction && fromstack != -1 && tostack != -1) {
-	         	radiusfrom = (pin[fromstack].top == NULL) ? 100.0f : pin[fromstack].top->radius;
-	            radiusto = (pin[tostack].top == NULL) ? 100.0f : pin[tostack].top->radius;
-	         	if(fromstack != tostack && radiusfrom < radiusto) {
+			if (pin[0].top == NULL && pin[1].top == NULL && curdisk == NULL) {	/* player has won */
+				win = needaction = 1;
+				fromstack = tostack = -1;
+				/*push(&pin[(int)curaction->tostack], curdisk);
+				   draw++;
+				   curdisk = NULL; */
+				//glutTimerFunc(5000, moveDisk, 1);
+			} else {
+				if (!needaction && fromstack != -1 && tostack != -1) {
+					radiusfrom = (pin[fromstack].top == NULL) ? 100.0f : pin[fromstack].top->radius;
+					radiusto = (pin[tostack].top == NULL) ? 100.0f : pin[tostack].top->radius;
+					if (fromstack != tostack && radiusfrom < radiusto) {
 						curaction->fromstack = fromstack;
 						curaction->tostack = tostack;
 						curdisk = pop(&pin[(int)curaction->fromstack]);
-	            }
+					}
 					fromstack = tostack = -1;
-					if(curdisk == NULL) {
+					if (curdisk == NULL) {
 						needaction = 1;
 					}
-				} else if(curdisk != NULL) {
+				} else if (curdisk != NULL) {
 					push(&pin[(int)curaction->tostack], curdisk);
 					draw++;
 					curdisk = NULL;
 					curaction->fromstack = curaction->tostack = -1;
 					needaction = 1;
 				}
-         }
+			}
 #endif /* MANUALLY */
 		}
+#if MANUALLY
+		if (!needaction)
+#endif /* MANUALLY */
+			pos += glfwGetTime();
+		glfwSetTime(0);
+
+		if (pos > 3.0 - FSEM)
+			pos = 3.0 - FSEM;
 
 #if MANUALLY
-		if(!needaction)
+		if (!win)
 #endif /* MANUALLY */
-		pos += speed;
-
-		if(pos > 3.0-FSEM)
-			pos = 3.0-FSEM;
-
-      #if MANUALLY
-      if(!win)
-      #endif /* MANUALLY */
-		glutTimerFunc((unsigned)FEM, moveDisk, 0);
+			__asm__("nop");
+		//glutTimerFunc((unsigned)FEM, moveDisk, 0);
 #if MANUALLY == 0
 	} else {
 		curdisk = NULL;
-		glutTimerFunc(5000, moveDisk, 1);
+		//glutTimerFunc(5000, moveDisk, 1);
 	}
 #endif /* MANUALLY */
-	glutPostRedisplay();
+	//glutPostRedisplay();
 }
 
-void timer(int param) {
-	if(curaction != NULL) {
+void timer(int param)
+{
+	if (curaction != NULL) {
 #if MANUALLY
-		if(!win)
+		if (!win)
 #endif /* MANUALLY */
-		sprintf(seconds, "Time: %ds", ++duration);
+			sprintf(seconds, "Time: %ds", ++duration);
 	}
-	glutTimerFunc(1000, timer, 0);
+	//glutTimerFunc(1000, timer, 0);
 }
-
 
 int main(int argc, char *argv[])
 {
-#ifdef __BORLANDC__
-	_control87(MCW_EM,MCW_EM); /* disable Floatingpoint Exceptions (for vintage borland compilers) (GLUT) */
-#endif /* __BORLANDC__ */
+	GLboolean running = GL_TRUE;
+
 	hanoiinit();
 	atexit(hanoicleanup);
-	glutInit(&argc, argv);
+	glfwInit();
 
-	glutInitWindowPosition(0, 0);
-	glutInitWindowSize(800, 600);
-	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE);
-
-	if(glutCreateWindow("Towers of Hanoi") == GL_FALSE)
-		exit(EXIT_FAILURE);
+	if (!glfwOpenWindow(800, 600, 8, 8, 8, 8, 24, 0, GLFW_WINDOW)) {
+		glfwTerminate();
+		return EXIT_FAILURE;
+	}
+	glfwSetWindowTitle("Towers of Hanoi");
 
 	Init();
 
-	glutReshapeFunc(Reshape);
-	glutKeyboardFunc(Key);
-	glutSpecialFunc(SpecialKey);
-	glutDisplayFunc(Display);
-	glutTimerFunc((unsigned)FEM, moveDisk, 0);
-	glutTimerFunc(1000, timer, 0);
+	reshape();
+	glfwSetKeyCallback(key);
+	glfwSetWindowRefreshCallback(reshape);
+	while (running) {
+		moveDisk(0);
+		Display();
+		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
+	}
 
-	glutMainLoop();
-
+	glfwTerminate();
 	return EXIT_SUCCESS;
 }

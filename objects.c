@@ -49,8 +49,8 @@ void drawAllPins(GLUquadricObj **quadric, const GLfloat radius, const GLfloat he
 void drawBitmapString(const GLfloat x, const GLfloat y, const GLfloat z, void *font, char *string) {
 	char *c;
 	glRasterPos3f(x, y, z);
-	for (c = string; *c != '\0'; c++)
-		glutBitmapCharacter(font, *c);
+	//for (c = string; *c != '\0'; c++)
+		//glutBitmapCharacter(font, *c);
 }
 
 void drawBitmapInt(const GLfloat x, const GLfloat y, const GLfloat z, void *font, const int number) {

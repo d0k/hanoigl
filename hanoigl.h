@@ -12,14 +12,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else /* __APPLE__ */
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
-#endif /* __APPLE */
+#include <GL/glfw.h>
 
 #endif /* _HANOIGL_H */

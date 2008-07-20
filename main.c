@@ -6,10 +6,7 @@
 
 #define MANUALLY 0
 
-#define FPS 64			/* more looks nicer, uses more cpu power */
-
-#define FEM 1000.0/FPS
-#define FSEM 0.001f		/* speed (bigger is faster) */
+#define DEFAULTSPEED 0.01f
 
 int disks;
 GLfloat rotX, rotY, zoom, offsetY = 1.5, speed;
@@ -90,13 +87,13 @@ static void hanoiinit(void)
 	if (disks <= 0 || disks > 20)
 		disks = 3;
 
-	speed = FSEM * FEM;
+	speed = DEFAULTSPEED;
 
 	radius = 0.1f * disks;
 	config.pinradius = radius + 0.1f;
 	config.gap = radius * 2 + 0.5f;
 	config.pinheight = disks * BREITE + 0.2f;
-	maxdraws = (2 << (disks - 1)) - 1;
+	maxdraws = (1 << disks) - 1;
 
 	populatePin();
 
@@ -258,7 +255,7 @@ void GLFWCALL key(int key, int action)
 			rotY = 0.0;
 			zoom = 0.0;
 			offsetY = 1.5;
-			speed = FSEM * FEM;
+			speed = DEFAULTSPEED;
 			break;
 		case '+':
 			zoom -= 0.1;
@@ -461,8 +458,8 @@ void moveDisk(int param)
 			pos += glfwGetTime();
 		glfwSetTime(0);
 
-		if (pos > 3.0 - FSEM)
-			pos = 3.0 - FSEM;
+		if (pos > 3.0)
+			pos = 3.0;
 
 #if MANUALLY
 		if (!win)

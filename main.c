@@ -7,7 +7,7 @@
 #define DEFAULTSPEED 1
 
 int disks;
-GLfloat rotX, rotY, zoom, offsetY = 1.5, speed;
+GLfloat rotX = 10, rotY, zoom = 1, offsetY = 1.5, speed;
 GLUquadricObj *quadric;
 GLfloat pos;
 
@@ -201,7 +201,7 @@ void GLFWCALL keycb(int key, int action)
 		case ' ':
 			rotX = 0.0;
 			rotY = 0.0;
-			zoom = 0.0;
+			zoom = 1.0;
 			offsetY = 1.5;
 			speed = DEFAULTSPEED;
 			break;
@@ -254,10 +254,11 @@ static void display(void)
 
 	glColor3f(0.0, 0.0, 0.0);
 
-	gluLookAt(0.0, 0.9, 3.6 + zoom, 0.0, offsetY, 0.0, 0.0, 1.0, 0.0);	/* calculate view point */
+	gluLookAt(0.0, 0.0, (6*config.pinradius+3*config.gap)*zoom, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);	/* calculate view point */
 
 	glRotatef(rotY, 0.0, 1.0, 0.0);	/* rotate Y axis */
 	glRotatef(rotX, 1.0, 0.0, 0.0);	/* rotate X axis */
+	glTranslatef(0.0, -offsetY, 0.0);
 
 	glColor3f(0.0, 0.0, 0.5);
 	drawAllPins(&quadric, config.pinradius, config.pinheight, config.gap);	/* draw pins */

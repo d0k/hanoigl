@@ -18,7 +18,8 @@ action *curaction;
 disk *curdisk;
 int last = 0;
 
-int draw, maxdraws;
+unsigned int draw;
+GLfloat duration;
 
 static void populatePin(void)
 {
@@ -79,7 +80,6 @@ static void hanoiinit(void)
 	config.pinradius = radius + 0.1f;
 	config.gap = radius * 2 + 0.5f;
 	config.pinheight = disks * BREITE + 0.2f;
-	maxdraws = (1 << disks) - 1;
 
 	populatePin();
 
@@ -94,6 +94,7 @@ static void reset(void)
 	clearPins();
 	populatePin();
 	glfwSetTime(0);
+	duration = 0;
 
 	/* reset actions */
 	last = 0;
@@ -319,6 +320,7 @@ void moveDisk(void)
 		}
 
 		pos += glfwGetTime() * speed;
+		duration += glfwGetTime() * speed;
 		glfwSetTime(0);
 
 		if (pos > 3.0)
@@ -349,10 +351,14 @@ int main(void)
 	glfwSetKeyCallback(keycb);
 	glfwSetWindowRefreshCallback(reshape);
 	while (running) {
-		if (curdisk != NULL || (int)glfwGetTime() < 5)
+		if (curdisk != NULL || (int)glfwGetTime() < 5) {
+			char buf[35 + 3 * 10];
 			moveDisk();
-		else
+			sprintf(buf, "Towers of Hanoi : Time: %ds : %d/%d draws", (int)duration, draw, (1 << disks) - 1);
+			glfwSetWindowTitle(buf);
+		} else {
 			reset();
+		}
 		display();
 		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
 	}

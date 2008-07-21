@@ -4,15 +4,12 @@
 #include "objects.h"
 #include "hanoi.h"
 
-#define MANUALLY 0
-
 #define DEFAULTSPEED 0.01f
 
 int disks;
 GLfloat rotX, rotY, zoom, offsetY = 1.5, speed;
 GLUquadricObj *quadric;
 GLfloat pos;
-GLboolean fullscreen;
 
 stack pin[3];
 float pinheight[3];
@@ -21,15 +18,7 @@ action *curaction;
 disk *curdisk;
 int last = 0;
 
-int duration;
-char seconds[24] = "Time: 0s";
-
 int draw, maxdraws;
-
-#if MANUALLY
-GLboolean needaction = 1, win;
-signed char fromstack = -1, tostack = -1;
-#endif /* MANUALLY */
 
 static void populatePin(void)
 {
@@ -46,7 +35,6 @@ static void populatePin(void)
 
 		radius -= 0.1;
 	}
-	duration = 0;
 	draw = 0;
 }
 
@@ -95,16 +83,10 @@ static void hanoiinit(void)
 
 	populatePin();
 
-#if MANUALLY == 0
 	curaction = (action *) malloc(sizeof(action));
 	hanoi_next(draw, disks, &last, curaction, pin);
 	curdisk = pop(&pin[curaction->fromstack]);
 	pos = 0.001;
-#else /* MANUALLY */
-	curaction = (action *) malloc(sizeof(action));
-	curaction->fromstack = -1;
-	curaction->tostack = -1;
-#endif /* MANUALLY */
 }
 
 static void reset(void)
@@ -112,22 +94,11 @@ static void reset(void)
 	clearPins();
 	populatePin();
 
-#if MANUALLY == 0
 	/* reset actions */
 	last = 0;
 	hanoi_next(draw, disks, &last, curaction, pin);
 	curdisk = pop(&pin[curaction->fromstack]);
 	pos = 0.001;
-#else /* MANUALLY */
-	fromstack = tostack = -1;
-	needaction = 1;
-#endif /* MANUALLY */
-}
-
-void hanoicleanup(void)
-{
-	clearPins();
-	gluDeleteQuadric(quadric);
 }
 
 static void setColor(const int color)
@@ -220,36 +191,11 @@ void GLFWCALL reshape(void)
 	glMatrixMode(GL_MODELVIEW);
 }
 
-#if MANUALLY
-static void setkeynum(const unsigned char key)
-{
-	if (needaction) {
-		if (fromstack == -1 && tostack == -1) {
-			fromstack = key;
-		} else {
-			tostack = key;
-			needaction = 0;
-		}
-	}
-}
-#endif /* MANUALLY */
-
 /** react to key presses */
 void GLFWCALL keycb(int key, int action)
 {
 	if (action == GLFW_PRESS) {
 		switch (key) {
-#if MANUALLY
-		case '1':
-			setkeynum(0);
-			break;
-		case '2':
-			setkeynum(1);
-			break;
-		case '3':
-			setkeynum(2);
-			break;
-#endif /* MANUALLY */
 		case ' ':
 			rotX = 0.0;
 			rotY = 0.0;
@@ -265,16 +211,6 @@ void GLFWCALL keycb(int key, int action)
 			break;
 		case 'R':
 			reset();
-			break;
-		case 'F':
-			/*if (fullscreen == 0) {
-			   glutFullScreen();
-			   fullscreen = 1;
-			   } else {
-			   glutReshapeWindow(800, 600);
-			   glutPositionWindow(50, 50);
-			   fullscreen = 0;
-			   } */
 			break;
 		case 'S':
 			speed += 0.005;
@@ -296,22 +232,18 @@ void GLFWCALL keycb(int key, int action)
 		case GLFW_KEY_RIGHT:
 			rotY += 5;
 			break;
-			/*case GLFW_KEY_PAGE_UP:
-			   offsetY -= 0.1;
-			   break;
-			   case GLFW_KEY_PAGE_DOWN:
-			   offsetY += 0.1;
-			   break;
-			   } */
-			//glutPostRedisplay();
+		case GLFW_KEY_PAGEUP:
+			offsetY -= 0.1;
+			break;
+		case GLFW_KEY_PAGEDOWN:
+			offsetY += 0.1;
+			break;
 		}
 	}
 }
 
 static void display(void)
 {
-	disk *cur;
-	int i;
 	GLfloat movY;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	/* clear scren */
@@ -319,13 +251,6 @@ static void display(void)
 	glLoadIdentity();	/* reinitialize model view matrix */
 
 	glColor3f(0.0, 0.0, 0.0);
-	//drawBitmapString(25.0, 32.0, -60.0, GLUT_BITMAP_9_BY_15, seconds);
-	//drawBitmapInt(25.0, 30.0, -60.0, GLUT_BITMAP_9_BY_15, draw);
-	//drawBitmapInt(28.0, 30.0, -60.0, GLUT_BITMAP_9_BY_15, maxdraws);
-#if MANUALLY
-	//if (win)
-	//drawBitmapString(-5.0, 10.0, -60.0, GLUT_BITMAP_TIMES_ROMAN_24, "won!");
-#endif /* MANUALLY */
 
 	gluLookAt(0.0, 0.9, 3.6 + zoom, 0.0, offsetY, 0.0, 0.0, 1.0, 0.0);	/* calculate view point */
 
@@ -380,97 +305,34 @@ static void display(void)
 	glfwSwapBuffers();	/* swap buffers (double buffering) */
 }
 
-void moveDisk(int param)
+void moveDisk(void)
 {
-#if MANUALLY
-	GLfloat radiusfrom, radiusto;
-#endif /* MANUALLY */
-	if (param == 1)
-		reset();
-#if MANUALLY
-	win = 0;
-#else /* MANUALLY */
 	if (curaction != NULL) {
-#endif /* MANUALLY */
 		if (pos == 0.0 || pos >= 3.0 - speed) {	/* 0--1 -> disk goes upwards, 1--2 "disk in air", 2--3 disk goes downwards */
 			pos = 0.0;
-#if MANUALLY == 0
 			draw++;
 			push(&pin[curaction->tostack], curdisk);
 			hanoi_next(draw, disks, &last, curaction, pin);
 			if (curaction->fromstack != curaction->tostack)
 				curdisk = pop(&pin[curaction->fromstack]);
-#else /* MANUALLY */
-			if (pin[0].top == NULL && pin[1].top == NULL && curdisk == NULL) {	/* player has won */
-				win = needaction = 1;
-				fromstack = tostack = -1;
-				/*push(&pin[(int)curaction->tostack], curdisk);
-				   draw++;
-				   curdisk = NULL; */
-				//glutTimerFunc(5000, moveDisk, 1);
-			} else {
-				if (!needaction && fromstack != -1 && tostack != -1) {
-					radiusfrom = (pin[fromstack].top == NULL) ? 100.0f : pin[fromstack].top->radius;
-					radiusto = (pin[tostack].top == NULL) ? 100.0f : pin[tostack].top->radius;
-					if (fromstack != tostack && radiusfrom < radiusto) {
-						curaction->fromstack = fromstack;
-						curaction->tostack = tostack;
-						curdisk = pop(&pin[curaction->fromstack]);
-					}
-					fromstack = tostack = -1;
-					if (curdisk == NULL) {
-						needaction = 1;
-					}
-				} else if (curdisk != NULL) {
-					push(&pin[curaction->tostack], curdisk);
-					draw++;
-					curdisk = NULL;
-					curaction->fromstack = curaction->tostack = -1;
-					needaction = 1;
-				}
-			}
-#endif /* MANUALLY */
 		}
-#if MANUALLY
-		if (!needaction)
-#endif /* MANUALLY */
-			pos += glfwGetTime();
+
+		pos += glfwGetTime();
 		glfwSetTime(0);
 
 		if (pos > 3.0)
 			pos = 3.0;
 
-#if MANUALLY
-		if (!win)
-#endif /* MANUALLY */
-			__asm__("nop");
-		//glutTimerFunc((unsigned)FEM, moveDisk, 0);
-#if MANUALLY == 0
 	} else {
 		curdisk = NULL;
-		//glutTimerFunc(5000, moveDisk, 1);
 	}
-#endif /* MANUALLY */
-	//glutPostRedisplay();
 }
 
-void timer(int param)
-{
-	if (curaction != NULL) {
-#if MANUALLY
-		if (!win)
-#endif /* MANUALLY */
-			sprintf(seconds, "Time: %ds", ++duration);
-	}
-	//glutTimerFunc(1000, timer, 0);
-}
-
-int main(int argc, char *argv[])
+int main(void)
 {
 	GLboolean running = GL_TRUE;
 
 	hanoiinit();
-	atexit(hanoicleanup);
 	glfwInit();
 
 	glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
@@ -486,11 +348,13 @@ int main(int argc, char *argv[])
 	glfwSetKeyCallback(keycb);
 	glfwSetWindowRefreshCallback(reshape);
 	while (running) {
-		moveDisk(0);
+		moveDisk();
 		display();
 		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
 	}
 
+	clearPins();
+	gluDeleteQuadric(quadric);
 	glfwTerminate();
 	return EXIT_SUCCESS;
 }

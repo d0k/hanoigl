@@ -44,18 +44,3 @@ void drawAllPins(GLUquadricObj **quadric, const GLfloat radius, const GLfloat he
 		drawPin(quadric, radius, height);
 	glPopMatrix();
 }
-
-/* from lighthouse3d */
-void drawBitmapString(const GLfloat x, const GLfloat y, const GLfloat z, void *font, char *string) {
-	char *c;
-	glRasterPos3f(x, y, z);
-	//for (c = string; *c != '\0'; c++)
-		//glutBitmapCharacter(font, *c);
-}
-
-void drawBitmapInt(const GLfloat x, const GLfloat y, const GLfloat z, void *font, const int number) {
-	char string[17];
-
-	sprintf(string, "%d", number);
-	drawBitmapString(x, y, z, font, string);
-}

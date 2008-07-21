@@ -3,7 +3,7 @@
 #include "hanoigl.h"
 #include "hanoi.h"
 
-void hanoi_next(const int draws, const int disks, int *last, action *act, const stack const *pins)
+void hanoi_next(const int draws, const int disks, int *last, action *act, const stack *pins)
 {
 	if (!(pins[0].top == NULL && pins[1].top == NULL)) {
 		if (draws%2 == 0) {

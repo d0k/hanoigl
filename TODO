@@ -1,9 +1,8 @@
 Priority: high
-* let the choose if he wants to play himself (not at compile time)
-* display info about the controls
 * fix rendering errors on high speeds
-* split display() to make it maintable
 * reintroduce fonts (glfw has no easy way to do this)
+* reimplement manual mode (with runtime switching and control info)
+* check why speed changing doesn't work
 
 Priority: low
 * fix little display glitches

@@ -1,5 +1,9 @@
 #include <math.h>
 
+#ifndef INFINITY
+#define INFINITY 0xFFFF /* so we will never have disks > 0xFFFF? :D */
+#endif
+
 #include "hanoigl.h"
 #include "hanoi.h"
 

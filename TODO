@@ -3,10 +3,9 @@ Priority: high
 * display info about the controls
 * fix rendering errors on high speeds
 * split display() to make it maintable
+* reintroduce fonts (glfw has no easy way to do this)
 
 Priority: low
 * fix little display glitches
-* drop GLUT, don't use fixed fps
-* antialiasing
 * maybe use display lists to speed up rendering (not sure if it helps in this case)
 * automatic camera movement

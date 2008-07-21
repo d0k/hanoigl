@@ -473,6 +473,7 @@ int main(int argc, char *argv[])
 	atexit(hanoicleanup);
 	glfwInit();
 
+	glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
 	if (!glfwOpenWindow(800, 600, 8, 8, 8, 8, 24, 0, GLFW_WINDOW)) {
 		glfwTerminate();
 		return EXIT_FAILURE;

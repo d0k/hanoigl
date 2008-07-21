@@ -19,7 +19,6 @@ float pinheight[3];
 struct config config;
 action *curaction;
 disk *curdisk;
-GLboolean smallmoved = GL_FALSE;
 int last = 0;
 
 int duration;
@@ -98,7 +97,7 @@ static void hanoiinit(void)
 
 #if MANUALLY == 0
 	curaction = (action *) malloc(sizeof(action));
-	hanoi_next(&smallmoved, &last, curaction, pin);
+	hanoi_next(draw, disks, &last, curaction, pin);
 	curdisk = pop(&pin[curaction->fromstack]);
 	pos = 0.001;
 #else /* MANUALLY */
@@ -115,9 +114,8 @@ static void reset(void)
 
 #if MANUALLY == 0
 	/* reset actions */
-	smallmoved = GL_FALSE;
 	last = 0;
-	hanoi_next(&smallmoved, &last, curaction, pin);
+	hanoi_next(draw, disks, &last, curaction, pin);
 	curdisk = pop(&pin[curaction->fromstack]);
 	pos = 0.001;
 #else /* MANUALLY */
@@ -399,7 +397,7 @@ void moveDisk(int param)
 #if MANUALLY == 0
 			draw++;
 			push(&pin[curaction->tostack], curdisk);
-			hanoi_next(&smallmoved, &last, curaction, pin);
+			hanoi_next(draw, disks, &last, curaction, pin);
 			if (curaction->fromstack != curaction->tostack)
 				curdisk = pop(&pin[curaction->fromstack]);
 #else /* MANUALLY */

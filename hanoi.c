@@ -3,14 +3,16 @@
 #include "hanoigl.h"
 #include "hanoi.h"
 
-void hanoi_next(GLboolean *smallmoved, int *last, action *act, const stack const *pins)
+void hanoi_next(const int draws, const int disks, int *last, action *act, const stack const *pins)
 {
 	if (!(pins[0].top == NULL && pins[1].top == NULL)) {
-		if (!*smallmoved) {
-			int tmp = *last;
-			*last = (*last+1)%3;
+		if (draws%2 == 0) {
+			act->fromstack = *last;
+			if (disks%2 == 1)
+				*last = (*last+2)%3;
+			else
+				*last = (*last+1)%3;
 
-			act->fromstack = tmp;
 			act->tostack = *last;
 		} else {
 			int pin1 = (*last+1)%3;
@@ -27,9 +29,7 @@ void hanoi_next(GLboolean *smallmoved, int *last, action *act, const stack const
 				act->fromstack = pin2;
 				act->tostack = pin1;
 			}
-			int foo = 0;
 		}
-		*smallmoved = !*smallmoved;
 	} else {
 		act->fromstack = act->tostack = -1;
 	}

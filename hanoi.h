@@ -10,6 +10,6 @@ struct action {
 
 typedef struct action action;
 
-void hanoi_next(GLboolean *smallmoved, int *last, action *act, const stack const *pins);
+void hanoi_next(const int draws, const int disks, int *last, action *act, const stack const *pins);
 
 #endif /* _HANOI_H */

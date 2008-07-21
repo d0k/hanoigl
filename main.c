@@ -4,7 +4,7 @@
 #include "objects.h"
 #include "hanoi.h"
 
-#define DEFAULTSPEED 0.01f
+#define DEFAULTSPEED 1
 
 int disks;
 GLfloat rotX, rotY, zoom, offsetY = 1.5, speed;
@@ -93,6 +93,7 @@ static void reset(void)
 {
 	clearPins();
 	populatePin();
+	glfwSetTime(0);
 
 	/* reset actions */
 	last = 0;
@@ -213,10 +214,10 @@ void GLFWCALL keycb(int key, int action)
 			reset();
 			break;
 		case 'S':
-			speed += 0.005;
+			speed += 0.5;
 			break;
 		case 'X':
-			speed -= 0.005;
+			speed -= 0.5;
 			if (speed < 0.0)
 				speed = 0.0;
 			break;
@@ -272,7 +273,7 @@ static void display(void)
 				GLfloat backward = (pos - 2.0f) * 180 + 90;
 				GLfloat forward = -(pos - 2.0f) * 180 - 90;
 				if (curaction->fromstack != 1 && curaction->tostack != 1) {	/* jump 2 pins */
-					glTranslatef(config.gap, config.pinheight + 0.05f, 0.0);
+					glTranslatef(config.gap, config.pinheight + 0.1f, 0.0);
 					if (curaction->fromstack == 0)
 						glRotatef(forward, 0.0, 0.0, 1.0);
 					else
@@ -280,9 +281,9 @@ static void display(void)
 					glTranslatef(0.0, config.gap, 0.0);
 				} else {	/* jump 1 pin */
 					if (curaction->fromstack == 2 || curaction->tostack == 2)
-						glTranslatef(config.gap / 2 * 3, config.pinheight + 0.05f, 0.0);
+						glTranslatef(config.gap / 2 * 3, config.pinheight + 0.1f, 0.0);
 					else
-						glTranslatef(config.gap / 2, config.pinheight + 0.05f, 0.0);
+						glTranslatef(config.gap / 2, config.pinheight + 0.1f, 0.0);
 
 					if (curaction->fromstack < curaction->tostack)
 						glRotatef(forward, 0.0, 0.0, 1.0);
@@ -293,7 +294,7 @@ static void display(void)
 				}
 				glRotatef(-90, 0.0, 0.0, 1.0);
 			} else if (pos >= 2.0) {	/* drop disk down */
-				movY = config.pinheight - (pos - 2.0f + speed) * (config.pinheight - pinheight[curaction->tostack]);
+				movY = config.pinheight - (pos - 2.0f) * (config.pinheight - pinheight[curaction->tostack]);
 				glTranslatef(config.gap * curaction->tostack, movY, 0.0);
 			}
 		}
@@ -307,8 +308,8 @@ static void display(void)
 
 void moveDisk(void)
 {
-	if (curaction != NULL) {
-		if (pos == 0.0 || pos >= 3.0 - speed) {	/* 0--1 -> disk goes upwards, 1--2 "disk in air", 2--3 disk goes downwards */
+	if (curaction->tostack != -1) {
+		if (pos == 0.0 || pos >= 3.0) {	/* 0--1 -> disk goes upwards, 1--2 "disk in air", 2--3 disk goes downwards */
 			pos = 0.0;
 			draw++;
 			push(&pin[curaction->tostack], curdisk);
@@ -317,7 +318,7 @@ void moveDisk(void)
 				curdisk = pop(&pin[curaction->fromstack]);
 		}
 
-		pos += glfwGetTime();
+		pos += glfwGetTime() * speed;
 		glfwSetTime(0);
 
 		if (pos > 3.0)
@@ -348,7 +349,10 @@ int main(void)
 	glfwSetKeyCallback(keycb);
 	glfwSetWindowRefreshCallback(reshape);
 	while (running) {
-		moveDisk();
+		if (curdisk != NULL || (int)glfwGetTime() < 5)
+			moveDisk();
+		else
+			reset();
 		display();
 		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
 	}

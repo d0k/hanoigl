@@ -11,8 +11,7 @@ Dependencies
 
 Usage
 -----
-To change the disk count you may edit `disks.txt`. There is an artifical limit
-on 20 disks so you don't shoot yourself in the foot by memory usage.
+To change the disk count you may edit `disks.txt`.
 
 Interface
 ~~~~~~~~~

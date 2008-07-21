@@ -83,7 +83,7 @@ static void hanoiinit(void)
 		fclose(datei);
 	}
 
-	if (disks <= 0 || disks > 20)
+	if (disks <= 0)
 		disks = 3;
 
 	speed = DEFAULTSPEED;
@@ -378,6 +378,7 @@ static void display(void)
 		drawDisk(&quadric, curdisk->radius, STANGENBREITE);
 	}
 
+	glfwSwapInterval(1);
 	glfwSwapBuffers();	/* swap buffers (double buffering) */
 }
 

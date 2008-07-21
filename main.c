@@ -156,6 +156,30 @@ static void setColor(const int color)
 	}
 }
 
+static void fillPins(void)
+{
+	int i;
+	disk *cur;
+
+	glPushMatrix();
+	for (i = 0; i < 3; i++) {	/* fill pins with disks */
+		glPushMatrix();
+		pinheight[i] = 0;
+		if ((cur = pin[i].bottom) != NULL) {
+			do {
+				setColor(cur->color);
+				drawDisk(&quadric, cur->radius, STANGENBREITE);
+				glTranslatef(0.0, BREITE, 0.0);
+				pinheight[i] += BREITE;
+				cur = cur->next;
+			} while (cur != NULL);
+		}
+		glPopMatrix();
+		glTranslatef(config.gap, 0.0, 0.0);
+	}
+	glPopMatrix();
+}
+
 void Init(void)
 {
 	const GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -213,7 +237,7 @@ static void setkeynum(const unsigned char key)
 #endif /* MANUALLY */
 
 /** react to key presses */
-void GLFWCALL key(int key, int action)
+void GLFWCALL keycb(int key, int action)
 {
 	if (action == GLFW_PRESS) {
 		switch (key) {
@@ -228,10 +252,6 @@ void GLFWCALL key(int key, int action)
 			setkeynum(2);
 			break;
 #endif /* MANUALLY */
-		case 27:
-		case 'q':
-			exit(EXIT_SUCCESS);
-			break;
 		case ' ':
 			rotX = 0.0;
 			rotY = 0.0;
@@ -245,10 +265,10 @@ void GLFWCALL key(int key, int action)
 		case '-':
 			zoom += 0.1;
 			break;
-		case 'r':
+		case 'R':
 			reset();
 			break;
-		case 'f':
+		case 'F':
 			/*if (fullscreen == 0) {
 			   glutFullScreen();
 			   fullscreen = 1;
@@ -258,15 +278,14 @@ void GLFWCALL key(int key, int action)
 			   fullscreen = 0;
 			   } */
 			break;
-		case 's':
+		case 'S':
 			speed += 0.005;
 			break;
-		case 'x':
+		case 'X':
 			speed -= 0.005;
 			if (speed < 0.0)
 				speed = 0.0;
 			break;
-
 		case GLFW_KEY_UP:
 			rotX -= 5;
 			break;
@@ -291,7 +310,7 @@ void GLFWCALL key(int key, int action)
 	}
 }
 
-void Display(void)
+static void display(void)
 {
 	disk *cur;
 	int i;
@@ -319,60 +338,39 @@ void Display(void)
 	drawAllPins(&quadric, config.pinradius, config.pinheight, config.gap);	/* draw pins */
 
 	glTranslatef(-config.gap, BREITE / 2, 0.0);
-	glPushMatrix();
-	for (i = 0; i < 3; i++) {	/* fill pins with disks */
-		glPushMatrix();
-		pinheight[i] = 0;
-		if ((cur = pin[i].bottom) != NULL) {
-			do {
-				setColor(cur->color);
-				drawDisk(&quadric, cur->radius, STANGENBREITE);
-				glTranslatef(0.0, BREITE, 0.0);
-				pinheight[i] += BREITE;
-				cur = cur->next;
-			} while (cur != NULL);
-		}
-		glPopMatrix();
-		glTranslatef(config.gap, 0.0, 0.0);
-	}
-	glPopMatrix();
+	fillPins();
 
-	if (curaction != NULL && curaction->fromstack != -1 && curdisk != NULL) {
-		if (pos <= 1.0) {	/* hochschieben */
-			movY = pos * (config.pinheight - pinheight[(int)curaction->fromstack]);
-			glTranslatef(config.gap * curaction->fromstack, pinheight[(int)curaction->fromstack] + movY, 0.0);
+	if (curaction->fromstack != -1 && curdisk != NULL) {
+		if (pos <= 1.0) {	/* push disk up */
+			movY = pos * (config.pinheight - pinheight[curaction->fromstack]);
+			glTranslatef(config.gap * curaction->fromstack, pinheight[curaction->fromstack] + movY, 0.0);
 		} else {
 			if (pos < 2.0 && curaction->fromstack != curaction->tostack) {
+				GLfloat backward = (pos - 2.0f) * 180 + 90;
+				GLfloat forward = -(pos - 2.0f) * 180 - 90;
 				if (curaction->fromstack != 1 && curaction->tostack != 1) {	/* jump 2 pins */
 					glTranslatef(config.gap, config.pinheight + 0.05f, 0.0);
 					if (curaction->fromstack == 0)
-						glRotatef(-(pos - 2.0f) * 180 - 90, 0.0, 0.0, 1.0);
+						glRotatef(forward, 0.0, 0.0, 1.0);
 					else
-						glRotatef((pos - 2.0f) * 180 + 90, 0.0, 0.0, 1.0);
+						glRotatef(backward, 0.0, 0.0, 1.0);
 					glTranslatef(0.0, config.gap, 0.0);
-				} else {	/* 1er-sprung */
-					if (curaction->fromstack == 0 && curaction->tostack == 1) {
+				} else {	/* jump 1 pin */
+					if (curaction->fromstack == 2 || curaction->tostack == 2)
+						glTranslatef(config.gap / 2 * 3, config.pinheight + 0.05f, 0.0);
+					else
 						glTranslatef(config.gap / 2, config.pinheight + 0.05f, 0.0);
-						glRotatef(-(pos - 2.0f) * 180 - 90, 0.0, 0.0, 1.0);
-					} else {
-						if (curaction->fromstack == 2 && curaction->tostack == 1) {
-							glTranslatef(config.gap / 2 * 3, config.pinheight + 0.05f, 0.0);
-							glRotatef((pos - 2.0f) * 180 + 90, 0.0, 0.0, 1.0);
-						} else {
-							if (curaction->fromstack == 1 && curaction->tostack == 2) {
-								glTranslatef(config.gap / 2 * 3, config.pinheight + 0.05f, 0.0);
-								glRotatef(-(pos - 2.0f) * 180 - 90, 0.0, 0.0, 1.0);
-							} else {
-								glTranslatef(config.gap / 2, config.pinheight + 0.05f, 0.0);
-								glRotatef((pos - 2.0f) * 180 + 90, 0.0, 0.0, 1.0);
-							}
-						}
-					}
+
+					if (curaction->fromstack < curaction->tostack)
+						glRotatef(forward, 0.0, 0.0, 1.0);
+					else
+						glRotatef(backward, 0.0, 0.0, 1.0);
+
 					glTranslatef(0.0, config.gap / 2, 0.0);
 				}
 				glRotatef(-90, 0.0, 0.0, 1.0);
 			} else if (pos >= 2.0) {	/* drop disk down */
-				movY = config.pinheight - (pos - 2.0f + speed) * (config.pinheight - pinheight[(int)curaction->tostack]);
+				movY = config.pinheight - (pos - 2.0f + speed) * (config.pinheight - pinheight[curaction->tostack]);
 				glTranslatef(config.gap * curaction->tostack, movY, 0.0);
 			}
 		}
@@ -418,14 +416,14 @@ void moveDisk(int param)
 					if (fromstack != tostack && radiusfrom < radiusto) {
 						curaction->fromstack = fromstack;
 						curaction->tostack = tostack;
-						curdisk = pop(&pin[(int)curaction->fromstack]);
+						curdisk = pop(&pin[curaction->fromstack]);
 					}
 					fromstack = tostack = -1;
 					if (curdisk == NULL) {
 						needaction = 1;
 					}
 				} else if (curdisk != NULL) {
-					push(&pin[(int)curaction->tostack], curdisk);
+					push(&pin[curaction->tostack], curdisk);
 					draw++;
 					curdisk = NULL;
 					curaction->fromstack = curaction->tostack = -1;
@@ -485,11 +483,11 @@ int main(int argc, char *argv[])
 	Init();
 
 	reshape();
-	glfwSetKeyCallback(key);
+	glfwSetKeyCallback(keycb);
 	glfwSetWindowRefreshCallback(reshape);
 	while (running) {
 		moveDisk(0);
-		Display();
+		display();
 		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
 	}
 

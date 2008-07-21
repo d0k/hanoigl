@@ -17,11 +17,10 @@ GLboolean fullscreen;
 stack pin[3];
 float pinheight[3];
 struct config config;
-#if MANUALLY == 0
-actions actqueue;
-#endif
 action *curaction;
 disk *curdisk;
+GLboolean smallmoved = GL_FALSE;
+int last = 0;
 
 int duration;
 char seconds[24] = "Time: 0s";
@@ -98,12 +97,9 @@ static void hanoiinit(void)
 	populatePin();
 
 #if MANUALLY == 0
-	/* calculate actions; initialize action list */
-	actqueue.head = NULL;
-	hanoi(&actqueue, disks, 0, 1, 2);
-
-	curaction = actqueue.head;
-	curdisk = pop(&pin[(int)curaction->fromstack]);
+	curaction = (action *) malloc(sizeof(action));
+	hanoi_next(&smallmoved, &last, curaction, pin);
+	curdisk = pop(&pin[curaction->fromstack]);
 	pos = 0.001;
 #else /* MANUALLY */
 	curaction = (action *) malloc(sizeof(action));
@@ -119,8 +115,10 @@ static void reset(void)
 
 #if MANUALLY == 0
 	/* reset actions */
-	curaction = actqueue.head;
-	curdisk = pop(&pin[(int)curaction->fromstack]);
+	smallmoved = GL_FALSE;
+	last = 0;
+	hanoi_next(&smallmoved, &last, curaction, pin);
+	curdisk = pop(&pin[curaction->fromstack]);
 	pos = 0.001;
 #else /* MANUALLY */
 	fromstack = tostack = -1;
@@ -130,24 +128,8 @@ static void reset(void)
 
 void hanoicleanup(void)
 {
-#if MANUALLY == 0
-	action *acur, *atmp;
-#endif /* MANUALLY */
-
 	clearPins();
-
-#if MANUALLY == 0
-	/* delete actions */
-	acur = actqueue.head;
-	do {
-		atmp = acur->next;
-		free(acur);
-		acur = atmp;
-	} while (acur != NULL);
-#endif /* MANUALLY */
-
 	gluDeleteQuadric(quadric);
-
 }
 
 static void setColor(const int color)
@@ -417,10 +399,10 @@ void moveDisk(int param)
 			pos = 0.0;
 #if MANUALLY == 0
 			draw++;
-			push(&pin[(int)curaction->tostack], curdisk);
-			curaction = curaction->next;
-			if (curaction != NULL)
-				curdisk = pop(&pin[(int)curaction->fromstack]);
+			push(&pin[curaction->tostack], curdisk);
+			hanoi_next(&smallmoved, &last, curaction, pin);
+			if (curaction->fromstack != curaction->tostack)
+				curdisk = pop(&pin[curaction->fromstack]);
 #else /* MANUALLY */
 			if (pin[0].top == NULL && pin[1].top == NULL && curdisk == NULL) {	/* player has won */
 				win = needaction = 1;

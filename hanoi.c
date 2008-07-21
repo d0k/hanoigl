@@ -1,34 +1,36 @@
+#include <math.h>
+
 #include "hanoigl.h"
 #include "hanoi.h"
 
-/*hanoi(3, 1, 2, 3);*/
-/*
-void hanoi(int n, int pin1, int pin2, int pin3) {
-	if(n > 0) {
-		hanoi(n-1, pin1, pin3, pin2);
-		printf("Verschiebe von %d nach %d.\n", pin1, pin3);
-		hanoi(n-1, pin2, pin1, pin3);
-	}
-}
-*/
+void hanoi_next(GLboolean *smallmoved, int *last, action *act, const stack const *pins)
+{
+	if (!(pins[0].top == NULL && pins[1].top == NULL)) {
+		if (!*smallmoved) {
+			int tmp = *last;
+			*last = (*last+1)%3;
 
-void hanoi(actions *queue, const int n, const char pin1, const char pin2, const char pin3) {
-	action *curaction;
-	if(n > 0) {
-		hanoi(queue, n-1, pin1, pin3, pin2);
+			act->fromstack = tmp;
+			act->tostack = *last;
+		} else {
+			int pin1 = (*last+1)%3;
+			int pin2 = (*last+2)%3;
+			disk *d1 = pins[pin1].top;
+			disk *d2 = pins[pin2].top;
 
-		/* push action into action queue */
-		curaction = (action *)malloc(sizeof(action));
-		curaction->next = NULL;
-		curaction->fromstack = pin1;
-		curaction->tostack = pin3;
-
-		if(queue->head == NULL)
-			queue->head = curaction;
-		if(queue->tail != NULL)
-			queue->tail->next = curaction;
-		queue->tail = curaction;
-
-		hanoi(queue, n-1, pin2, pin1, pin3);
+			GLfloat radius1 = d1 != NULL ? d1->radius : INFINITY;
+			GLfloat radius2 = d2 != NULL ? d2->radius : INFINITY;
+			if (radius1 < radius2) {
+				act->fromstack = pin1;
+				act->tostack = pin2;
+			} else {
+				act->fromstack = pin2;
+				act->tostack = pin1;
+			}
+			int foo = 0;
+		}
+		*smallmoved = !*smallmoved;
+	} else {
+		act->fromstack = act->tostack = -1;
 	}
 }

@@ -1,21 +1,15 @@
 #ifndef _HANOI_H
 #define _HANOI_H
 
+#include "stack.h"
+
 struct action {
-	char fromstack;
-	char tostack;
-	struct action *next;
+	int fromstack;
+	int tostack;
 };
 
 typedef struct action action;
 
-struct actions {
-	action *head;
-	action *tail;
-};
-
-typedef struct actions actions;
-
-void hanoi(actions *queue, const int n, const char pin1, const char pin2, const char pin3);
+void hanoi_next(GLboolean *smallmoved, int *last, action *act, const stack const *pins);
 
 #endif /* _HANOI_H */
